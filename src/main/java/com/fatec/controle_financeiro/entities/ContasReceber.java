@@ -74,7 +74,4 @@ public class ContasReceber {
         this.valor = valor;
     }
 
-    public Object existsById(long id2) {
-        throw new UnsupportedOperationException("Unimplemented method 'existsById'");
-    }
 }

@@ -32,9 +32,9 @@ public class ContasPagarController {
 
     Fornecedor fornecedor = new Fornecedor();
 
-    private String msgErroFornecedor = "Esse fornecedor não existe.";
-    private String msgErroValor = "Valor inválido, o total da conta deve ser maior que zero.";
-    private String msgErroData = "Data de emissão inválida: deve ser anterior à data de vencimento.";
+    private String msgErroFornecedor = "Fornecedor não encontrado";
+    private String msgErroValor = "Valor da conta não pode ser menor que 0";
+    private String msgErroData = "A data de emissão não pode ser posterior a de vencimento!";
 
     @Autowired
     private ContasPagarRepository contasPagarRepository;
@@ -47,15 +47,20 @@ public class ContasPagarController {
         if(contaspagar.getVencimento().isAfter(contaspagar.getEmissao())){
             if((contaspagar.getValor().compareTo(BigDecimal.ZERO) > 0)){
                 if(fornecedorRepository.findById(contaspagar.getFornecedor().getId()).isPresent() && contaspagar.getFornecedor() != null ) {
+                    //id e buscar no fornecedor se id existe
+                    //nao existe -> mostrar msg
                         ContasPagar contaspagarCreated = contasPagarRepository.save(contaspagar);
                         return new ResponseEntity<>(contaspagarCreated, HttpStatus.CREATED);
                 }else{
+                    //Fornecedor nulo
                     return new ResponseEntity<>(msgErroFornecedor, HttpStatus.EXPECTATION_FAILED);
                 }
             }else{
+                //Valor menor que 0
                 return new ResponseEntity<>(msgErroValor, HttpStatus.EXPECTATION_FAILED);
             }
         }else{
+            //Data emissao inválida
             return new ResponseEntity<>(msgErroData, HttpStatus.EXPECTATION_FAILED);
         }
     }
@@ -78,6 +83,7 @@ public class ContasPagarController {
     
     @PutMapping("{id}")
     public ResponseEntity<?> updateContaPagar(@PathVariable long id, @RequestBody ContasPagar entityContasPagar) {
+        //TODO: process PUT request
         Optional<ContasPagar> contaAtual = contasPagarRepository.findById(id);
         if(contaAtual.isPresent()){
             if(entityContasPagar.getVencimento().isAfter(entityContasPagar.getEmissao())){
@@ -86,14 +92,18 @@ public class ContasPagarController {
                         ContasPagar contaspagarCreated = contasPagarRepository.save(entityContasPagar);
                         return new ResponseEntity<>(contaspagarCreated, HttpStatus.OK);
                     }else{
+                        //Fornecedor nulo
                         return new ResponseEntity<>(msgErroFornecedor, HttpStatus.EXPECTATION_FAILED);
                     }
                 }else{
+                    //Valor menor que 0
                     return new ResponseEntity<>(msgErroValor, HttpStatus.EXPECTATION_FAILED);
                 }
             }else{
+                //Data emissao inválida
                 return new ResponseEntity<>(msgErroData, HttpStatus.EXPECTATION_FAILED);
             }
+            
         }else{
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -109,4 +119,7 @@ public class ContasPagarController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+
+
 }

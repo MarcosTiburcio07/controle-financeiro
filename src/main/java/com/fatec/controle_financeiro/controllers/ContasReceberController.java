@@ -29,9 +29,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 public class ContasReceberController {
     
-    private String msgErroCliente = "Esse cliente não existe.";
-    private String msgErroValor = "Valor inválido, o total da conta deve ser maior que zero.";
-    private String msgErroData = "Data de emissão inválida: deve ser anterior à data de vencimento.";
+    private String msgErroCliente = "Cliente não foi encontrado";
+    private String msgErroValor = "Valor da conta não pode ser menor que 0";
+    private String msgErroData = "Data de emissão é posterior a de vencimento";
 
     @Autowired
     private ContasReceberRepository contasReceberRepository;
@@ -40,18 +40,23 @@ public class ContasReceberController {
 
     @PostMapping()
     public ResponseEntity<?> createContaReceber(@RequestBody ContasReceber contasreceber) {
+        //TODO: process POST request
         if(contasreceber.getVencimento().isAfter(contasreceber.getEmissao())){
             if((contasreceber.getValor().compareTo(BigDecimal.ZERO) > 0)){
+                //Verificar por que está caindo null
                 if(clienteRepository.findById(contasreceber.getCliente().getId()).isPresent() && contasreceber.getCliente() != null){
                     ContasReceber contasreceberCreated = contasReceberRepository.save(contasreceber);
                     return new ResponseEntity<>(contasreceberCreated, HttpStatus.CREATED);
                 }else{
+                    //Cliente nulo
                     return new ResponseEntity<>(msgErroCliente, HttpStatus.EXPECTATION_FAILED);
                 }
             }else{
+                //Valor menor que 0
                 return new ResponseEntity<>(msgErroValor, HttpStatus.EXPECTATION_FAILED);
             }
         }else{
+            //Data emissao inválida
             return new ResponseEntity<>(msgErroData, HttpStatus.EXPECTATION_FAILED);
         }
     }
@@ -74,21 +79,26 @@ public class ContasReceberController {
     
     @PutMapping("{id}")
     public ResponseEntity<?> updateContaReceber(@PathVariable long id, @RequestBody ContasReceber entityContasReceber) {
+        //TODO: process PUT request
         Optional<ContasReceber> contaAtual = contasReceberRepository.findById(id);
         if(contaAtual.isPresent()){
             if(entityContasReceber.getVencimento().isAfter(entityContasReceber.getEmissao())){
                 if((entityContasReceber.getValor().compareTo(BigDecimal.ZERO) > 0)){
+                    //Verificar por que está caindo null
                     if(clienteRepository.findById(entityContasReceber.getCliente().getId()).isPresent() && entityContasReceber.getCliente() != null){
                         entityContasReceber.setId(id);    
                         ContasReceber contasreceberCreated = contasReceberRepository.save(entityContasReceber);
                         return new ResponseEntity<>(contasreceberCreated, HttpStatus.OK);
                     }else{
+                        //Cliente nulo
                         return new ResponseEntity<>(msgErroCliente, HttpStatus.EXPECTATION_FAILED);
                     }
                 }else{
+                    //Valor menor que 0
                     return new ResponseEntity<>(msgErroValor, HttpStatus.EXPECTATION_FAILED);
                 }
             }else{
+                //Data emissao inválida
                 return new ResponseEntity<>(msgErroData, HttpStatus.EXPECTATION_FAILED);
             }
         }else{

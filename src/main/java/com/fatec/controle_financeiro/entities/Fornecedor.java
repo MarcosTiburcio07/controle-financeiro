@@ -14,9 +14,11 @@ public class Fornecedor{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private int id;
 
     @Column(nullable = false, length = 60)
+
     private String nome;
 
     public Fornecedor(){
